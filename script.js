@@ -7,6 +7,8 @@
 // ========================================
 // Configuration & Constants
 // ========================================
+// Note: For production, use environment variables or a backend proxy
+// This demo API key is for educational/portfolio purposes only
 const apiKey = "e0a60ea474767c2b20eebde461aed9ca";
 const API_BASE = "https://api.openweathermap.org/data/2.5";
 const GEO_API = "https://api.openweathermap.org/geo/1.0";
@@ -371,13 +373,13 @@ function displayCurrentWeather(data) {
 }
 
 /**
- * Display hourly forecast (next 12 hours)
+ * Display hourly forecast (next 36 hours at 3-hour intervals)
  * @param {object} data - Forecast API response
  */
 function displayHourlyForecast(data) {
   elements.hourlyForecast.innerHTML = "";
   
-  // Get next 12 entries (36 hours at 3-hour intervals, show 12)
+  // Get next 12 entries (36 hours of data at 3-hour intervals)
   const hourlyData = data.list.slice(0, 12);
   
   hourlyData.forEach((item, index) => {
