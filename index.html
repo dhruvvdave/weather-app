@@ -3,32 +3,191 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Modern Weather App</title>
+  <meta name="description" content="A beautiful, modern weather application showing current conditions, hourly and 5-day forecasts"/>
+  <title>Weather Pro - Modern Weather App</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
-<body>
-  <div class="app">
-    <div class="card glass">
-      <h1 class="title">Weather</h1>
-      <div class="search">
-        <input type="text" id="cityInput" placeholder="Enter city..." autocomplete="off" />
-        <button id="searchBtn">🔍</button>
+<body class="weather-clear" id="appBody">
+  <!-- Dynamic background overlay -->
+  <div class="weather-bg-overlay" id="weatherBgOverlay"></div>
+  
+  <div class="app-container">
+    <!-- Header with search and controls -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">☀️</span>
+          <h1 class="brand-title">Weather Pro</h1>
+        </div>
+        
+        <div class="header-controls">
+          <button id="darkModeToggle" class="control-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <span class="icon-sun" aria-hidden="true">☀️</span>
+            <span class="icon-moon hidden" aria-hidden="true">🌙</span>
+          </button>
+          <button id="unitToggle" class="control-btn unit-toggle" aria-label="Switch temperature unit" title="Switch temperature unit">
+            <span id="unitDisplay">°C</span>
+          </button>
+        </div>
       </div>
-      <ul id="suggestions" class="suggestions hidden"></ul>
-
-      <div id="weatherInfo" class="hidden fade-in">
-        <h2 id="cityName"></h2>
-        <img id="weatherIcon" alt="weather icon"/>
-        <p id="temperature"></p>
-        <p id="description"></p>
+      
+      <!-- Search Section -->
+      <div class="search-wrapper">
+        <div class="search-container">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input 
+            type="text" 
+            id="cityInput" 
+            placeholder="Search for a city..." 
+            autocomplete="off"
+            aria-label="Search for a city"
+            aria-describedby="searchHint"
+          />
+          <button id="searchBtn" class="search-btn" aria-label="Search">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <span id="searchHint" class="search-hint">Enter a city name to get weather information</span>
+        <ul id="suggestions" class="suggestions hidden" role="listbox" aria-label="City suggestions"></ul>
       </div>
+    </header>
 
-      <button id="unitToggle">Switch to °F</button>
-      <div id="forecast" class="hidden forecast-container"></div>
-      <p id="errorMsg" class="error hidden"></p>
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state hidden">
+      <div class="skeleton-main">
+        <div class="skeleton skeleton-location"></div>
+        <div class="skeleton skeleton-temp"></div>
+        <div class="skeleton skeleton-desc"></div>
+      </div>
+      <div class="skeleton-cards">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
     </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state hidden">
+      <div class="error-card glass">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <h3 id="errorTitle">Oops! Something went wrong</h3>
+        <p id="errorMsg">City not found. Please check the spelling and try again.</p>
+        <button id="retryBtn" class="btn btn-primary">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Main Weather Content -->
+    <main id="weatherContent" class="weather-content hidden">
+      <!-- Hero Section - Current Weather -->
+      <section class="hero-section glass" aria-label="Current weather">
+        <div class="hero-location">
+          <h2 id="cityName" class="city-name"></h2>
+          <p id="dateTime" class="date-time"></p>
+        </div>
+        
+        <div class="hero-main">
+          <div class="hero-temp-container">
+            <div class="weather-icon-wrapper">
+              <img id="weatherIcon" alt="Current weather condition" class="weather-icon-main"/>
+            </div>
+            <div class="temp-info">
+              <span id="temperature" class="temp-value"></span>
+              <span id="feelsLike" class="feels-like"></span>
+            </div>
+          </div>
+          <p id="description" class="weather-description"></p>
+        </div>
+        
+        <!-- Weather Details Grid -->
+        <div class="weather-details">
+          <div class="detail-item">
+            <span class="detail-icon" aria-hidden="true">💧</span>
+            <div class="detail-info">
+              <span class="detail-label">Humidity</span>
+              <span id="humidity" class="detail-value">--</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon" aria-hidden="true">💨</span>
+            <div class="detail-info">
+              <span class="detail-label">Wind</span>
+              <span id="wind" class="detail-value">--</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon" aria-hidden="true">🌡️</span>
+            <div class="detail-info">
+              <span class="detail-label">Pressure</span>
+              <span id="pressure" class="detail-value">--</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon" aria-hidden="true">👁️</span>
+            <div class="detail-info">
+              <span class="detail-label">Visibility</span>
+              <span id="visibility" class="detail-value">--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sun Times Section -->
+      <section class="sun-times-section glass" aria-label="Sunrise and sunset times">
+        <div class="sun-item sunrise">
+          <span class="sun-icon" aria-hidden="true">🌅</span>
+          <div class="sun-info">
+            <span class="sun-label">Sunrise</span>
+            <span id="sunrise" class="sun-time">--:--</span>
+          </div>
+        </div>
+        <div class="sun-progress">
+          <div class="sun-track">
+            <div id="sunPosition" class="sun-indicator" style="left: 0%">
+              <span aria-hidden="true">☀️</span>
+            </div>
+          </div>
+        </div>
+        <div class="sun-item sunset">
+          <span class="sun-icon" aria-hidden="true">🌇</span>
+          <div class="sun-info">
+            <span class="sun-label">Sunset</span>
+            <span id="sunset" class="sun-time">--:--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hourly Forecast Section -->
+      <section class="hourly-section glass" aria-label="Hourly forecast">
+        <h3 class="section-title">
+          <span class="section-icon" aria-hidden="true">🕐</span>
+          Hourly Forecast
+        </h3>
+        <div id="hourlyForecast" class="hourly-scroll">
+          <!-- Hourly items will be inserted here -->
+        </div>
+      </section>
+
+      <!-- 5-Day Forecast Section -->
+      <section class="forecast-section glass" aria-label="5-day forecast">
+        <h3 class="section-title">
+          <span class="section-icon" aria-hidden="true">📅</span>
+          5-Day Forecast
+        </h3>
+        <div id="forecast" class="forecast-grid">
+          <!-- Forecast cards will be inserted here -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Powered by <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer">OpenWeather API</a></p>
+    </footer>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
